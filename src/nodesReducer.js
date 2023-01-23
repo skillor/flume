@@ -237,30 +237,34 @@ const nodesReducer = (
         input.portName
       ];
       if (inputIsNotConnected) {
-        const allowCircular = circularBehavior === "warn" || circularBehavior === "allow"
         const newNodes = addConnection(nodes, input, output, portTypes);
+
+        if (circularBehavior === "allow") return newNodes;
+
         const isCircular = checkForCircularNodes(newNodes, output.nodeId);
-        if (isCircular && !allowCircular) {
+
+        if (!isCircular) return newNodes;
+
+        if(circularBehavior === "warn"){
           dispatchToasts({
             type: "ADD_TOAST",
-            title: "Unable to connect",
-            message: "Connecting these nodes would result in an infinite loop.",
+            title: "Circular Connection Detected",
+            message: "Connecting these nodes has created an infinite loop.",
             toastType: "warning",
             duration: 5000
           });
-          return nodes;
-        } else {
-          if(isCircular && circularBehavior === "warn"){
-            dispatchToasts({
-              type: "ADD_TOAST",
-              title: "Circular Connection Detected",
-              message: "Connecting these nodes has created an infinite loop.",
-              toastType: "warning",
-              duration: 5000
-            });
-          }
           return newNodes;
         }
+        
+        dispatchToasts({
+          type: "ADD_TOAST",
+          title: "Unable to connect",
+          message: "Connecting these nodes would result in an infinite loop.",
+          toastType: "warning",
+          duration: 5000
+        });
+        return nodes;
+        
       } else return nodes;
     }
 

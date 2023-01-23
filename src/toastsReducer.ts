@@ -1,8 +1,34 @@
-import { nanoid }from "nanoid/non-secure/index";
+import { nanoid }from "nanoid/non-secure";
+import { Toast, ToastTypes } from "./types";
 
-export default (toasts = [], action) => {
+export enum ToastActionTypes {
+  ADD_TOAST = "ADD_TOAST",
+  REMOVE_TOAST = "REMOVE_TOAST",
+  SET_HEIGHT = "SET_HEIGHT",
+  SET_EXITING = "SET_EXITING",
+}
+
+export type ToastAction = {
+  type: ToastActionTypes.ADD_TOAST;
+  title: string;
+  message: string;
+  toastType?: ToastTypes;
+  duration?: number;
+} | {
+  type: ToastActionTypes.REMOVE_TOAST;
+  id: string;
+} | {
+  type: ToastActionTypes.SET_HEIGHT;
+  id: string;
+  height: number;
+} | {
+  type: ToastActionTypes.SET_EXITING;
+  id: string;
+}
+
+export default (toasts: Toast[] = [], action: ToastAction) => {
   switch (action.type) {
-    case "ADD_TOAST":
+    case ToastActionTypes.ADD_TOAST:
       return [
         {
           id: nanoid(5),
@@ -15,7 +41,7 @@ export default (toasts = [], action) => {
         },
         ...toasts
       ];
-    case "SET_HEIGHT": {
+    case ToastActionTypes.SET_HEIGHT: {
       const index = toasts.findIndex(t => t.id === action.id);
       return [
         ...toasts.slice(0, index),
@@ -26,7 +52,7 @@ export default (toasts = [], action) => {
         ...toasts.slice(index + 1)
       ];
     }
-    case "SET_EXITING": {
+    case ToastActionTypes.SET_EXITING: {
       const index = toasts.findIndex(t => t.id === action.id);
       return [
         ...toasts.slice(0, index),
@@ -37,7 +63,7 @@ export default (toasts = [], action) => {
         ...toasts.slice(index + 1)
       ];
     }
-    case "REMOVE_TOAST": {
+    case ToastActionTypes.REMOVE_TOAST: {
       const index = toasts.findIndex(t => t.id === action.id);
       return [
         ...toasts.slice(0, index),
